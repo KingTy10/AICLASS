@@ -1,40 +1,31 @@
-# Wordle FSM Assignment
+# A* Tutorial Effort (Codex Version)
 
-This project is a console-based Wordle simulator implemented in Python.
-The round flow is controlled with a Finite State Machine (FSM) using `Enum` states (not booleans).
+I completed the assignment using Codex as an alternative to Unity and produced a creative A* pathfinding artifact.
 
 ## Files
-- `wordle_fsm.py` — main program
+- `astar_tutorial_effort.py` — A complete A* implementation on a 2D grid with:
+  - Priority-queue open set (`heapq`)
+  - Manhattan heuristic
+  - Path reconstruction
+  - A creative "spiral gate" level
+  - ASCII visualization for easy upload/evidence
+- `wordle_fsm.py` — existing FSM-based Wordle assignment file retained from previous work.
 
-## How to run
+## Run
 ```bash
-python3 wordle_fsm.py
+python3 astar_tutorial_effort.py
 ```
 
-## What I tested (manual tests)
-1. **Invalid word entry handling**
-   - Entered words that were not exactly 5 letters (`abc`, `12345`, `abcdef`).
-   - Verified game stayed in `WordEntryState` and requested input again.
+## What this demonstrates
+- Core A* concepts from the tutorial flow:
+  - Open list / frontier
+  - `g` cost from start
+  - `h` heuristic to goal
+  - `f = g + h` prioritization
+  - Parent tracking (`came_from`) and final path build
+- A creative extension beyond a plain shortest-path test: a patterned maze map rendered as text output.
 
-2. **Confirm flow returns to entry**
-   - Entered a valid 5-letter word, then answered `n` on confirmation.
-   - Verified game returned to word entry and allowed replacing the guess.
+## Sample output shape
+`S` = Start, `G` = Goal, `#` = Wall, `*` = Path, `.` = Empty.
 
-3. **Round end on attempt limit**
-   - Entered 6 incorrect guesses.
-   - Verified transition to display summary and `You Lost.` result.
-
-4. **Round end on win**
-   - Tested with fixed secret word via direct class usage in Python REPL.
-   - Verified correct guess sets `has_won=True` and summary displays `You Won.`.
-
-## Notes
-- `PlayRound()` contains FSM transitions:
-  - `WordEntryState`
-  - `ConfirmState`
-  - `ScoreState`
-  - `IsWinnerState`
-  - `ReviewState`
-  - `ConfirmStateAfterReview`
-  - `DisplayState`
-- The player has exactly 6 guesses.
+(Your path should be visible as `*` characters from `S` to `G` when run.)
