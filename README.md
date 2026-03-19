@@ -92,3 +92,185 @@ pathfinding.game_loop("DFS")
 ```
 
 BFS monster is usually more efficient/challenging; DFS monster can feel goofy due to detours.
+
+---
+
+# Python Assignment: Flocking Simulation with Boids
+
+Below is a complete reference implementation you can copy into `boids_simulation.py` and run with `pygame`.
+
+```python
+import math
+import random
+import pygame
+
+WIDTH, HEIGHT = 1000, 700
+BACKGROUND = (18, 20, 28)
+BOID_COLOR = (230, 235, 255)
+
+NUM_BOIDS = 60
+NEIGHBOR_RADIUS = 55
+SEPARATION_RADIUS = 20
+
+SEPARATION_WEIGHT = 1.7
+ALIGNMENT_WEIGHT = 1.0
+COHESION_WEIGHT = 0.95
+
+MAX_SPEED = 4.0
+MAX_FORCE = 0.11
+
+
+def limit(vec: pygame.Vector2, max_mag: float) -> pygame.Vector2:
+    if vec.length_squared() == 0:
+        return vec
+    if vec.length() > max_mag:
+        vec.scale_to_length(max_mag)
+    return vec
+
+
+class Boid:
+    def __init__(self) -> None:
+        self.position = pygame.Vector2(random.uniform(0, WIDTH), random.uniform(0, HEIGHT))
+        self.velocity = pygame.Vector2(random.uniform(-2, 2), random.uniform(-2, 2))
+        if self.velocity.length_squared() == 0:
+            self.velocity = pygame.Vector2(1, 0)
+        self.acceleration = pygame.Vector2(0, 0)
+        self.max_speed = MAX_SPEED
+        self.max_force = MAX_FORCE
+
+    def apply_force(self, force: pygame.Vector2) -> None:
+        self.acceleration += force
+
+    def neighbors(self, boids: list["Boid"]) -> list["Boid"]:
+        near: list[Boid] = []
+        for other in boids:
+            if other is self:
+                continue
+            if self.position.distance_to(other.position) < NEIGHBOR_RADIUS:
+                near.append(other)
+        return near
+
+    def separation(self, near: list["Boid"]) -> pygame.Vector2:
+        steer = pygame.Vector2(0, 0)
+        count = 0
+        for other in near:
+            d = self.position.distance_to(other.position)
+            if 0 < d < SEPARATION_RADIUS:
+                diff = self.position - other.position
+                diff /= d
+                steer += diff
+                count += 1
+        if count:
+            steer /= count
+        if steer.length_squared() > 0:
+            steer.scale_to_length(self.max_speed)
+            steer -= self.velocity
+            limit(steer, self.max_force)
+        return steer
+
+    def alignment(self, near: list["Boid"]) -> pygame.Vector2:
+        if not near:
+            return pygame.Vector2(0, 0)
+        avg = pygame.Vector2(0, 0)
+        for other in near:
+            avg += other.velocity
+        avg /= len(near)
+        if avg.length_squared() > 0:
+            avg.scale_to_length(self.max_speed)
+        steer = avg - self.velocity
+        return limit(steer, self.max_force)
+
+    def cohesion(self, near: list["Boid"]) -> pygame.Vector2:
+        if not near:
+            return pygame.Vector2(0, 0)
+        center = pygame.Vector2(0, 0)
+        for other in near:
+            center += other.position
+        center /= len(near)
+        return self.seek(center)
+
+    def seek(self, target: pygame.Vector2) -> pygame.Vector2:
+        desired = target - self.position
+        if desired.length_squared() == 0:
+            return pygame.Vector2(0, 0)
+        desired.scale_to_length(self.max_speed)
+        steer = desired - self.velocity
+        return limit(steer, self.max_force)
+
+    def flock(self, boids: list["Boid"]) -> None:
+        near = self.neighbors(boids)
+        sep = self.separation(near) * SEPARATION_WEIGHT
+        ali = self.alignment(near) * ALIGNMENT_WEIGHT
+        coh = self.cohesion(near) * COHESION_WEIGHT
+        self.apply_force(sep)
+        self.apply_force(ali)
+        self.apply_force(coh)
+
+    def update(self) -> None:
+        self.velocity += self.acceleration
+        limit(self.velocity, self.max_speed)
+        self.position += self.velocity
+        self.acceleration.update(0, 0)
+
+        # screen wrapping
+        if self.position.x < 0:
+            self.position.x = WIDTH
+        elif self.position.x > WIDTH:
+            self.position.x = 0
+        if self.position.y < 0:
+            self.position.y = HEIGHT
+        elif self.position.y > HEIGHT:
+            self.position.y = 0
+
+    def draw(self, surface: pygame.Surface) -> None:
+        heading = self.velocity.angle_to(pygame.Vector2(1, 0))
+        size = 9
+        points = [
+            pygame.Vector2(size, 0),
+            pygame.Vector2(-size * 0.8, size * 0.5),
+            pygame.Vector2(-size * 0.8, -size * 0.5),
+        ]
+        rotated = [p.rotate(-heading) + self.position for p in points]
+        pygame.draw.polygon(surface, BOID_COLOR, rotated)
+
+
+def main() -> None:
+    pygame.init()
+    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    pygame.display.set_caption("Boids Flocking Simulation")
+    clock = pygame.time.Clock()
+
+    boids = [Boid() for _ in range(NUM_BOIDS)]
+    running = True
+    while running:
+        dt = clock.tick(60)
+        _ = dt  # intentionally kept for students who want dt-based motion later
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+
+        screen.fill(BACKGROUND)
+        for boid in boids:
+            boid.flock(boids)
+        for boid in boids:
+            boid.update()
+            boid.draw(screen)
+
+        pygame.display.flip()
+
+    pygame.quit()
+
+
+if __name__ == "__main__":
+    main()
+```
+
+## Reflection Answers (Short)
+
+1. **Biggest effect**: separation usually has the strongest immediate visible effect, because it prevents overlap and creates the characteristic spacing.
+2. **If separation is too strong**: the flock explodes into jittery motion and never forms cohesive groups.
+3. **If cohesion is too strong**: boids clump too tightly and can collapse into unrealistic blobs.
+4. **Why emergent**: no boid plans global flock shape; group behavior appears from local interactions only.
+5. **Complexity**: naive neighbor checking is **O(n²)** per frame.
+6. **Optimization**: spatial hashing / uniform grids / quadtrees reduce neighbor checks to near-local buckets.
