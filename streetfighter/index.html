@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Street Fighter Fan Page</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #111, #2b0f0f);
+        color: #fff;
+      }
+      header {
+        text-align: center;
+        padding: 3rem 1rem;
+        background: #c1121f;
+      }
+      h1 {
+        margin: 0;
+        font-size: 2.5rem;
+      }
+      main {
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 0 1rem 2rem;
+      }
+      .card {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1rem;
+      }
+      .fighters {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 0.75rem;
+      }
+      .fighter {
+        background: #1f1f1f;
+        border-radius: 8px;
+        padding: 0.75rem;
+      }
+      footer {
+        text-align: center;
+        padding: 1rem;
+        font-size: 0.9rem;
+        opacity: 0.9;
+      }
+      .btn {
+        display: inline-block;
+        background: #fca311;
+        color: #000;
+        text-decoration: none;
+        padding: 0.6rem 1rem;
+        border-radius: 8px;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Street Fighter</h1>
+      <p>Iconic 1v1 battles, legendary fighters, and classic special moves.</p>
+    </header>
+
+    <main>
+      <section class="card">
+        <h2>About the Series</h2>
+        <p>
+          Street Fighter is one of the most influential fighting game franchises,
+          known for tight gameplay, unique character styles, and high-level competitive play.
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>Popular Fighters</h2>
+        <div class="fighters">
+          <div class="fighter"><strong>Ryu</strong><br />Balanced shotokan master.</div>
+          <div class="fighter"><strong>Chun-Li</strong><br />Fast kicks and pressure.</div>
+          <div class="fighter"><strong>Ken</strong><br />Aggressive rushdown style.</div>
+          <div class="fighter"><strong>Guile</strong><br />Zoning with Sonic Boom.</div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Famous Moves</h2>
+        <ul>
+          <li>Hadoken</li>
+          <li>Shoryuken</li>
+          <li>Spinning Bird Kick</li>
+          <li>Sonic Boom</li>
+        </ul>
+        <a class="btn" href="#">Start Training</a>
+      </section>
+    </main>
+
+    <footer>Fan-made practice page · Fight on!</footer>
+  </body>
+</html>
